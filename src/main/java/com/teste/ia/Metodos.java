@@ -17,6 +17,7 @@ import models.ItemMochila;
  * @author geandersonlemonte
  */
 public class Metodos {
+    // classe com os metodos e funcoes do algoritmo
 
     public static final int TAMANHOPOPULACAO = 500;
     public static final int TAMANHOCROMOSSOMO = 500;
@@ -24,11 +25,9 @@ public class Metodos {
     private static Metodos instancia;
     private final LinkedList<ItemMochila> dadosDoArquivo;
 
-
     private Metodos() {
         dadosDoArquivo = buscarPossiveisItens();
     }
-
 
     public static Metodos pegarInstancia() {
         if (instancia == null) {
@@ -38,11 +37,13 @@ public class Metodos {
     }
 
     private LinkedList<ItemMochila> buscarPossiveisItens() {
+        // busca os itens no arquivo
         final ILeituraArquivo leituraArquivo = new LeituraArquivo();
         return leituraArquivo.lerLista1();
     }
 
     public static LinkedList<Individuo> crossOverUniforme(Individuo pai1, Individuo pai2, int chanceCrossOver) {
+        // Realiza o crossOverUniforme entre dois pais e retorna dois filhos
         final Random gerador = new Random();
         final LinkedList<Integer> cromossomo1 = new LinkedList(pai1.getCromossomo());
         final LinkedList<Integer> cromossomo2 = new LinkedList(pai2.getCromossomo());
@@ -50,7 +51,7 @@ public class Metodos {
             final double chanceGerada = gerador.nextInt(100);
             if (chanceGerada < chanceCrossOver) {
                 cromossomo1.set(i, pai2.getCromossomo().get(i));
-                cromossomo2.set(i,pai1.getCromossomo().get(i));
+                cromossomo2.set(i, pai1.getCromossomo().get(i));
             }
         }
 
@@ -63,6 +64,7 @@ public class Metodos {
     }
 
     public static LinkedList<Individuo> gerarPopulacao(int chancePossuirItem) {
+// Gerar pupulacao de pais        
         final LinkedList<Individuo> populacao = new LinkedList();
         for (int i = 0; i < TAMANHOPOPULACAO; i++) {
             populacao.add(geraIndividuo(chancePossuirItem));
@@ -71,10 +73,12 @@ public class Metodos {
     }
 
     public static void ordenarProFitness(LinkedList<Individuo> populacao) {
+//        Ordenar populacao por fitness
         Collections.sort(populacao);
     }
 
     public static Individuo geraIndividuo(int chancePossuirItem) {
+//        Gerar individuo
         final Random gerador = new Random();
         final LinkedList<Integer> cromossomo = new LinkedList();
         for (int j = 0; j < TAMANHOCROMOSSOMO; j++) {
@@ -89,6 +93,7 @@ public class Metodos {
     }
 
     private static Individuo retornaIndividuoComFitnessEPeso(LinkedList<Integer> cromossomo) {
+//        Calcula o peso e o firness a partir de do cromossomo e retorna o individuo
         LinkedList<ItemMochila> itens = Metodos.pegarInstancia().dadosDoArquivo;
         double somaPesos = 0;
         int somaUtilidades = 0;
@@ -111,6 +116,7 @@ public class Metodos {
             int quantidadeDeItensSelecionados,
             LinkedList<Individuo> populacao
     ) {
+//        Recebe a populacao e a quantidade de itens que deseja da roleta e retorna uma lista com a quantidade desejade de individuos
         final LinkedList<Individuo> individuosSelecionados = new LinkedList();
         final Random gerador = new Random();
         double fitnessTotal = 0;
@@ -131,6 +137,7 @@ public class Metodos {
     }
 
     public static Individuo realizarMutacao(Individuo cromossomo, int chanceMutacao, int quantidadeMutacao) {
+//        Realiza a mutacao de um individuo
         final Random gerador = new Random();
         final LinkedList<Integer> novoCromossomo = new LinkedList(cromossomo.getCromossomo());
         final double chanceDeMudar = gerador.nextDouble(100);

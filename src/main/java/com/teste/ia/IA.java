@@ -15,47 +15,53 @@ import models.Individuo;
 public class IA {
 
     public static void main(String[] args) {
-        LinkedList<Individuo> populacao = Metodos.gerarPopulacao(5);
-        int geracao = 0;
-        double ultimoFitness = 0;
-        int contador = 0;
-        int chanceMutacao = 100; // 5
-        int chanceCrossOver = 30; // 20
-        int quantidadeMutacao = 2; // 2
-        while (populacao.getFirst().getFitness() < 21312) {
-            LinkedList<Individuo> filhos = new LinkedList();
+        LinkedList<Individuo> populacao = Metodos.gerarPopulacao(5); // GERA A POPULACAO DE PAIS
+        int geracao = 0; // GERACAO ATUAL
+        double ultimoFitness = 0;  // ULTIMO FITNESS ENCONTRADO
+        int contador = 0; // CONTADOR DE QUANTAS GERACOES NAO HOUVE EVOLUCAO
+        int chanceMutacao = 100; // PORCENTAGEM DE CHANCE DE MUTACAO
+        int chanceCrossOver = 30; // PORCENTAGEM DE CHANCE DE CROSSOVER
+        int quantidadeMutacao = 2; // QUANTIDADE DE MUTACOES
+        while (populacao.getFirst().getFitness() < 21312) { // ENQUANTO ELE NAO ACHAR O VALOR MAXIMO ELE VAI EXECUTAR O WHILE
+            LinkedList<Individuo> filhos = new LinkedList(); // CRIA LISTA DE FILHOS
             for (int i = 0; i < Metodos.TAMANHOPOPULACAO / 2; i++) {
-                final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorRoleta(2, populacao);
-                final LinkedList<Individuo> itensAposCrossOver = Metodos.crossOverUniforme(itensSelecionados.getFirst(), itensSelecionados.getLast(), chanceCrossOver);
-                final Individuo itemMutado1 = Metodos.realizarMutacao(itensAposCrossOver.getFirst(), chanceMutacao, quantidadeMutacao);
-                final Individuo itemMutado2 = Metodos.realizarMutacao(itensAposCrossOver.getLast(), chanceMutacao, quantidadeMutacao);
-                filhos.add(itemMutado1);
-                filhos.add(itemMutado2);
+                final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorRoleta(2, populacao); // RODA A ROLETA E SELECIONA DOIS INDIVIDUOS
+                final LinkedList<Individuo> itensAposCrossOver = Metodos.crossOverUniforme(itensSelecionados.getFirst(), itensSelecionados.getLast(), chanceCrossOver); // REALIZA CROOSSOVER UNIFORME EM DOIS INDIVIDUOS 
+                final Individuo itemMutado1 = Metodos.realizarMutacao(itensAposCrossOver.getFirst(), chanceMutacao, quantidadeMutacao); // IDIVIDUO 1 APOS MUTACAO
+                final Individuo itemMutado2 = Metodos.realizarMutacao(itensAposCrossOver.getLast(), chanceMutacao, quantidadeMutacao); // INDIVIDUO 2 APOS MUTACAO
+                filhos.add(itemMutado1); // ADICIONA O INDIVIDUO 1 A LISTA DE FILHOS
+                filhos.add(itemMutado2); // ADICIONA O INDIVIDUO 2 A LISTA DE FILHOS
             }
-            populacao.addAll(filhos);
-            Collections.sort(populacao);
-            populacao = new LinkedList(populacao.subList(0, Metodos.TAMANHOPOPULACAO));
-            final double melhorFitness = populacao.getFirst().getFitness();
-            
-            System.out.println(melhorFitness);
-            quantidadeMutacao = 2;
-            if (melhorFitness == ultimoFitness) {
+            populacao.addAll(filhos); // ADICIONA TODOS OS FILHOS A LISTA DE PAIS
+            Collections.sort(populacao); // ORNDENA A POPULACAO TOTAL
+            populacao = new LinkedList(populacao.subList(0, Metodos.TAMANHOPOPULACAO)); // REMOVE A PIOR METADE DA POPULACAO
+            final double melhorFitness = populacao.getFirst().getFitness(); // PEGA O MELHOR FITNESS
+
+            System.out.println(melhorFitness); // MOSTRAR O ELEMENTO DE MELHOR FITNESS DESSA GERACAO
+            quantidadeMutacao = 2; // QUANTIDADE DE MUTACAO RECEBE 2
+            if (melhorFitness == ultimoFitness) { 
+                // CASO NAO TENHA TIDO PROGRESSO NA GERACAO ELE AUMENTA O CONTADOR 
                 contador++;
             } else {
-//                chanceMutacao = 0;
-                ultimoFitness = melhorFitness;
-                contador = 0;
+                // CASO TENHA TIDO PROGRESSO NA GERACAO
+                ultimoFitness = melhorFitness; // SALVA O ULTIMO MELHOR FITNESS
+                contador = 0; // RESETA O CONTADOR
                 if (geracao % 10 == 0) {
-                    quantidadeMutacao = 5;
+                    // CASO ELE ESTEJA EVOLUINDO NORMALMENTE EM GERACOES MULTIPLAS DE 10 ELE AUMENTA A QUANTIDADE DE MUTACAO
+                    // PARA QUE POSSA ESPALHAR UM POUCO A SOLUÇÃO PARA SABER TER NOVAS POSSIBILIDADES
+                    quantidadeMutacao = 5; // AUMENTA A QUANTIDADE DE MUTACAO
                 }
             }
             if (contador > 3) {
-//                chanceMutacao = 100;
-                quantidadeMutacao = 1;
+                // CASO ELE JA TENHA TIDO 3 GERACOES SEM MELHORIAS
+                // ELE REDUZ A QUANTIDADE DE MUTACAO PARA TENTAR DEIXAR MAIS PRECISO AS MUDANCAS
+                // PARA ENCONTRAR AQUELE ESPECÍFICO QUE PODERIA SER MELHORADO NO CROMOSSOMO
+                quantidadeMutacao = 1; // AUMENTA A QUANTIDADE DE MUTACAO
             }
-            System.out.println(geracao);
-            geracao++;
+            System.out.println(geracao); // MOSTRA A GERACAO ATUAL
+            geracao++; // AUMENTA A GERACAO
         }
-            System.out.println(populacao.getFirst());
+        // ATINGIU A CONDICAO DE PARADA
+        System.out.println(populacao.getFirst()); // MOSTROU O MELHOR VALOR ENCONTRADO
     }
 }
