@@ -4,9 +4,11 @@
  */
 package com.teste.ia;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import models.Individuo;
+
 
 /**
  *
@@ -22,7 +24,10 @@ public class IA {
         int chanceMutacao = 100; // PORCENTAGEM DE CHANCE DE MUTACAO
         int chanceCrossOver = 30; // PORCENTAGEM DE CHANCE DE CROSSOVER
         int quantidadeMutacao = 2; // QUANTIDADE DE MUTACOES
-        while (populacao.getFirst().getFitness() < 21312) { // ENQUANTO ELE NAO ACHAR O VALOR MAXIMO ELE VAI EXECUTAR O WHILE
+        Grafico grafico = new Grafico();
+        LinkedList<Double> dados = new LinkedList();
+
+        while (populacao.getFirst().getFitness() < 10000) { // ENQUANTO ELE NAO ACHAR O VALOR MAXIMO ELE VAI EXECUTAR O WHILE
             LinkedList<Individuo> filhos = new LinkedList(); // CRIA LISTA DE FILHOS
             for (int i = 0; i < Metodos.TAMANHOPOPULACAO / 2; i++) {
                 final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorRoleta(2, populacao); // RODA A ROLETA E SELECIONA DOIS INDIVIDUOS
@@ -45,7 +50,7 @@ public class IA {
             } else {
                 // CASO TENHA TIDO PROGRESSO NA GERACAO
                 ultimoFitness = melhorFitness; // SALVA O ULTIMO MELHOR FITNESS
-                contador = 0; // RESETA O CONTADOR
+                contador = 0; // RESETA O CONTADOR   
                 if (geracao % 10 == 0) {
                     // CASO ELE ESTEJA EVOLUINDO NORMALMENTE EM GERACOES MULTIPLAS DE 10 ELE AUMENTA A QUANTIDADE DE MUTACAO
                     // PARA QUE POSSA ESPALHAR UM POUCO A SOLUÇÃO PARA SABER TER NOVAS POSSIBILIDADES
@@ -60,8 +65,10 @@ public class IA {
             }
             System.out.println(geracao); // MOSTRA A GERACAO ATUAL
             geracao++; // AUMENTA A GERACAO
+            dados.add(ultimoFitness);
         }
         // ATINGIU A CONDICAO DE PARADA
         System.out.println(populacao.getFirst()); // MOSTROU O MELHOR VALOR ENCONTRADO
+        grafico.criarGrafico(dados);
     }
 }
