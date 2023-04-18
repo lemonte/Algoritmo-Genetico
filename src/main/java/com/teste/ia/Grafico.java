@@ -37,7 +37,7 @@ public class Grafico extends JFrame{
         
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Mochila",
-                "Indivídos",
+                "Indivíduos",
                 "Fitness",
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -49,7 +49,14 @@ public class Grafico extends JFrame{
         XYPlot plot = chart.getXYPlot();
 
         var renderer = new XYLineAndShapeRenderer();
-        plot.setRenderer(renderer);       
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
+        
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.white);
+        plot.setRangeGridlinesVisible(false);
+        plot.setDomainGridlinesVisible(false);
+        
         
         ChartFrame frame1 = new ChartFrame("Gráfico de linhas", chart);
         
