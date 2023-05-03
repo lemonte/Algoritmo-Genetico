@@ -8,9 +8,12 @@ import external.ILeituraArquivo;
 import external.LeituraArquivo;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import models.Conjunto;
 import models.Individuo;
 import models.ItemMochila;
+import models.Universo;
 
 /**
  *
@@ -124,7 +127,7 @@ public class Metodos {
             fitnessTotal = fitnessTotal + individuo.getFitness();
         }
         for (int i = 0; i < quantidadeDeItensSelecionados; i++) {
-            final double localDaRoletaEscolhido = gerador.nextDouble(fitnessTotal);
+            final double localDaRoletaEscolhido = gerador.nextDouble() * fitnessTotal;
             double somaFitness = 0;
             int j = 0;
             while (somaFitness < localDaRoletaEscolhido) {
@@ -140,7 +143,7 @@ public class Metodos {
 //        Realiza a mutacao de um individuo
         final Random gerador = new Random();
         final LinkedList<Integer> novoCromossomo = new LinkedList(cromossomo.getCromossomo());
-        final double chanceDeMudar = gerador.nextDouble(100);
+        final double chanceDeMudar = gerador.nextDouble() * 100;
         if (chanceDeMudar < chanceMutacao) {
             for (int i = 0; i < quantidadeMutacao; i++) {
                 final int gene = gerador.nextInt(TAMANHOCROMOSSOMO);
@@ -153,5 +156,92 @@ public class Metodos {
         }
         return retornaIndividuoComFitnessEPeso(novoCromossomo);
     }
+
+    public static int calcularDistancia(Individuo cromossomoPrincipal, LinkedList<Integer> cromossomoComparado) {
+        int distancia = 0;
+        for (int i = 0; i < cromossomoPrincipal.getCromossomo().size(); i++) {
+            if (!cromossomoPrincipal.getCromossomo().get(i).equals(cromossomoComparado.get(i))) {
+                distancia++;
+            }
+        }
+        return distancia;
+    }
+
+    public static void verificarConvergencia(Individuo individuo, int y, int k) {
+//      Individuo primeiroIndividuo = populacao.getFirst();
+//      Individuo individuoComparado = null;
+        
+        Universo universo = Universo.getInstancia();
+        boolean adicionado = false;
+        int i = 0;
+        while(!adicionado){
+            if(universo.quantidadeDeConjuntos() == 0){
+                Conjunto conjunto = new Conjunto();
+                conjunto.adicionarIndividuoLista(individuo);
+                universo.adicionarConjuntoLista(conjunto);
+                adicionado = true;
+            } else {
+                if(calcularDistancia(universo.getConjuntos().get(i).obterMaioral(), individuo.getCromossomo())<y ){
+                    universo.getConjuntos().get(i).adicionarIndividuoLista(individuo);
+                    adicionado = true;
+            } else{
+                    if(i == universo.quantidadeDeConjuntos()){
+                        Conjunto conjunto = new Conjunto();
+                        conjunto.adicionarIndividuoLista(individuo);
+                        universo.adicionarConjuntoLista(conjunto);
+                        adicionado = true;
+                    }
+                }
+               
+            }
+            i ++;
+        }
+        
+        if (universo.quantidadeDeConjuntos() < k){
+            System.out.println("Ha convergencia");
+        } else {
+            System.out.println("Nao ha convergencia");
+        }
+    }
+        
+        
+//        int i = 1;;
+//        int j = 0;
+//
+//        int m = 730; // Maximo de Individuos
+//        int k = 500; // Maximo de Conjuntos
+//        int y = 200; // Distancia Maxima
+//        
+//      
+//        int numConjuntos = 1;
+//        int numConjuntoJ = 0;
+//        
+//        while (i < populacao.size() && numConjuntos < k) {
+//            j = 1;
+//            individuoComparado = populacao.get(i);
+//            while (j <= numConjuntos) {
+//                if (calcularDistancia(primeiroIndividuo, individuoComparado.getCromossomo()) < y) {
+//                    System.out.println("Descarte do Indivíduo");
+//                    
+//                    if (numConjuntoJ > m){
+//                        System.out.println("Há Convergência");
+//                    }
+//                    
+//                    break;
+//                }
+//                j++;
+//            }
+//            if(j > numConjuntos){
+//                numConjuntos++;
+//            }
+//            i++;
+//        }
+//        
+//        if(numConjuntos < k){
+//            System.out.println("Há Convergência");
+//        } else {
+//            System.out.println("Não há Convergência");
+//        }
+//    }
 
 }
