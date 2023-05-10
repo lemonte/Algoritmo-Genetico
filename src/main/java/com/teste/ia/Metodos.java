@@ -167,81 +167,49 @@ public class Metodos {
         return distancia;
     }
 
-    public static void verificarConvergencia(Individuo individuo, int y, int k) {
-//      Individuo primeiroIndividuo = populacao.getFirst();
-//      Individuo individuoComparado = null;
-        
+    public static void separarIndividuos(Individuo individuo, int y, int k) {
+
         Universo universo = Universo.getInstancia();
         boolean adicionado = false;
         int i = 0;
-        while(!adicionado){
-            if(universo.quantidadeDeConjuntos() == 0){
+        while (!adicionado) {
+            if (universo.quantidadeDeConjuntos() == 0) {
                 Conjunto conjunto = new Conjunto();
                 conjunto.adicionarIndividuoLista(individuo);
                 universo.adicionarConjuntoLista(conjunto);
                 adicionado = true;
             } else {
-                if(calcularDistancia(universo.getConjuntos().get(i).obterMaioral(), individuo.getCromossomo())<y ){
+                if (calcularDistancia(universo.getConjuntos().get(i).obterMaioral(), individuo.getCromossomo()) < y) {
                     universo.getConjuntos().get(i).adicionarIndividuoLista(individuo);
                     adicionado = true;
-            } else{
-                    if(i == universo.quantidadeDeConjuntos()){
-                        Conjunto conjunto = new Conjunto();
-                        conjunto.adicionarIndividuoLista(individuo);
-                        universo.adicionarConjuntoLista(conjunto);
-                        adicionado = true;
-                    }
+                } else {
+                    Conjunto conjunto = new Conjunto();
+                    conjunto.adicionarIndividuoLista(individuo);
+                    universo.adicionarConjuntoLista(conjunto);
+                    adicionado = true;
                 }
-               
             }
-            i ++;
+            i++;
         }
-        
-        if (universo.quantidadeDeConjuntos() < k){
-            System.out.println("Ha convergencia");
-        } else {
-            System.out.println("Nao ha convergencia");
+
+        if (universo.quantidadeDeConjuntos() > k) {
+            System.out.println("Há Convergência");
         }
     }
-        
-        
-//        int i = 1;;
-//        int j = 0;
-//
-//        int m = 730; // Maximo de Individuos
-//        int k = 500; // Maximo de Conjuntos
-//        int y = 200; // Distancia Maxima
-//        
-//      
-//        int numConjuntos = 1;
-//        int numConjuntoJ = 0;
-//        
-//        while (i < populacao.size() && numConjuntos < k) {
-//            j = 1;
-//            individuoComparado = populacao.get(i);
-//            while (j <= numConjuntos) {
-//                if (calcularDistancia(primeiroIndividuo, individuoComparado.getCromossomo()) < y) {
-//                    System.out.println("Descarte do Indivíduo");
-//                    
-//                    if (numConjuntoJ > m){
-//                        System.out.println("Há Convergência");
-//                    }
-//                    
-//                    break;
-//                }
-//                j++;
-//            }
-//            if(j > numConjuntos){
-//                numConjuntos++;
-//            }
-//            i++;
-//        }
-//        
-//        if(numConjuntos < k){
-//            System.out.println("Há Convergência");
-//        } else {
-//            System.out.println("Não há Convergência");
-//        }
-//    }
 
+    public static void verificarConvergencia(LinkedList<Individuo> populacao, int maxConjuntos, int maxDistancia, int maxIndMesmoConjunto) {
+        Universo universo = Universo.getInstancia();
+
+        int i = 1;
+
+        while (universo.quantidadeDeConjuntos() < maxConjuntos) {
+            if (i > maxConjuntos) {
+                System.out.println("Há Convergêcia.");
+            } else {
+                System.out.println("Não há Convergêcia.");
+            }
+            //if (universo.getConjuntos().get(i).quantidadeIndividuos() > maxIndMesmoConjunto){}
+            i++;
+        }
+    }
 }
