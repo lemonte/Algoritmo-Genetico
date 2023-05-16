@@ -4,8 +4,7 @@
  */
 package com.teste.ia;
 
-import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.LinkedList;
 import models.Individuo;
 
@@ -24,11 +23,8 @@ public class IA {
         int chanceCrossOver = 30; // PORCENTAGEM DE CHANCE DE CROSSOVER
         int quantidadeMutacao = 10; // QUANTIDADE DE MUTACOES
         Grafico grafico = new Grafico();
+        int y = 10;
         LinkedList<Double> dados = new LinkedList();
-
-        int maxDistancia = 30;
-        int maxIndConjunto = 5000;
-        int maxConjunto = 10;
 
         // populacao.getFirst().getFitness() < 21312
         while (geracao < 3000) { // CONDICAO DE PARADA
@@ -80,9 +76,12 @@ public class IA {
             if (geracao % 10 == 0) {
                 System.out.println("Criando o esquema!"); 
                 LinkedList<Integer> esquema = Metodos.criarEsquema(populacao);
-                if (Metodos.temConvergencia(populacao)){
+                if (Metodos.temConvergencia(populacao, y) > 1){
+                    if(y > 1){
+                        y = y - 1;
+                    }
                     System.out.println("Aplicando mutacao dirigida! ");
-                    Metodos.mutacaoDirigida(esquema, populacao, 0.6);
+                    Metodos.mutacaoDirigida(esquema, populacao, 0.4);
                 }
             }
 

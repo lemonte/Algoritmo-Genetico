@@ -252,39 +252,41 @@ public class Metodos {
         }
     }
 
-    public static boolean temConvergencia(LinkedList<Individuo> populacao) {
+    public static int temConvergencia(LinkedList<Individuo> populacao, int y) {
         System.out.println("Testando conversão genética");
-        int k = 10; // max conjunto
-        int y = 20; // max distancia entre os individuos
-        int m = 3000; // max individuos em um conjunto
-
+        int k = 100; // max conjunto
+        int m = 100; // max individuos em um conjunto
+        
         List<Conjunto> groups = new LinkedList<>();
 
         groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), populacao.get(0)));
-        for(int i =0; i < populacao.size(); i ++){
+        for (int i = 0; i < populacao.size(); i++) {
             Individuo individuo = populacao.get(i);
             boolean added = false;
-            for(int j = 0; j < groups.size(); j ++){
-                 Conjunto group = groups.get(j);
-                 if (Conjunto.calcularDistancia(group, individuo, y)) {
+            for (int j = 0; j < groups.size(); j++) {
+                Conjunto group = groups.get(j);
+                if (Conjunto.calcularDistancia(group, individuo, y)) {
                     Conjunto.adicionarIndividuoLista(group, individuo);
                     added = true;
                     if (group.quantidadeIndividuos() > m) {
+                        System.out.println("TAMANHO CONJUNTO " + groups.size());
                         System.out.println("Conversão genética detectada por super grupo!");
-                        return true;
+                        return groups.size();
                     }
                 }
             }
             if (!added) {
-                System.out.println("Criando novo conjunto");
+//                System.out.println("Criando novo conjunto");
                 groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), individuo));
             }
         }
+        System.out.println("TAMANHO CONJUNTO " + groups.size());
+
         if (groups.size() < k) {
             System.out.println("Conversão genética detectada por número de conjuntos!");
-            return true;
+            return groups.size();
         }
-        return false;
+        return 0;
 
     }
 

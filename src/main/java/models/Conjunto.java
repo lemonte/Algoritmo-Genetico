@@ -25,8 +25,8 @@ public class Conjunto {
 
     public static boolean calcularDistancia(Conjunto grupo, Individuo cromossomoComparado, int maxDistancia) {
         int distancia = 0;
-
-        for (int i = 0; i < grupo.quantidadeIndividuos(); i++) {
+        
+        for (int i = 0; i < grupo.obterMaioral().getCromossomo().size(); i++) {
             if (!grupo.obterMaioral().getCromossomo().get(i).equals(cromossomoComparado.getCromossomo().get(i))) {
                 distancia++;
             }
