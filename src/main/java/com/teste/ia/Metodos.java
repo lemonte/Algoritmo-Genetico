@@ -6,6 +6,7 @@ package com.teste.ia;
 
 import external.ILeituraArquivo;
 import external.LeituraArquivo;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.Random;
 import models.Conjunto;
 import models.Individuo;
 import models.ItemMochila;
-import models.Universo;
 
 /**
  *
@@ -64,6 +64,27 @@ public class Metodos {
         resultadoCrossOverUniforme.add(individuo1);
         resultadoCrossOverUniforme.add(individuo2);
         return resultadoCrossOverUniforme;
+    }
+
+    public static LinkedList<Individuo> crossOverUmPonto(Individuo pai1, Individuo pai2, int chanceCrossOver) {
+        final Random gerador = new Random();
+        final LinkedList<Integer> cromossomo1 = new LinkedList(pai1.getCromossomo());
+        final LinkedList<Integer> cromossomo2 = new LinkedList(pai2.getCromossomo());
+        final double chanceGerada = gerador.nextInt(100);
+        if (chanceGerada < chanceCrossOver) {
+            final int pontoCorte = gerador.nextInt(TAMANHOCROMOSSOMO);
+            for (int i = pontoCorte; i < TAMANHOCROMOSSOMO; i++) {
+                cromossomo1.set(i, pai2.getCromossomo().get(i));
+                cromossomo2.set(i, pai1.getCromossomo().get(i));
+            }
+
+        }
+        final LinkedList<Individuo> resultadoCrossOverUmPonto = new LinkedList();
+        Individuo individuo1 = retornaIndividuoComFitnessEPeso(cromossomo1);
+        Individuo individuo2 = retornaIndividuoComFitnessEPeso(cromossomo2);
+        resultadoCrossOverUmPonto.add(individuo1);
+        resultadoCrossOverUmPonto.add(individuo2);
+        return resultadoCrossOverUmPonto;
     }
 
     public static LinkedList<Individuo> gerarPopulacao(int chancePossuirItem) {
@@ -139,6 +160,50 @@ public class Metodos {
         return individuosSelecionados;
     }
 
+    public static LinkedList<Individuo> selecaoPorTorneio(
+            int tamanhoTorneio,
+            LinkedList<Individuo> populacao
+    ) {
+
+        int posicao1 = Math.round(populacao.size() / tamanhoTorneio);
+        int posicao2 = posicao1 * 2;
+        int posicao3 = populacao.size();
+
+        LinkedList<Individuo> primeiraParte = new LinkedList(populacao.subList(0, posicao1));
+        LinkedList<Individuo> segundaParte = new LinkedList(populacao.subList(posicao1, posicao2));
+        LinkedList<Individuo> terceiraParte = new LinkedList(populacao.subList(posicao2, posicao3));
+        Collections.sort(primeiraParte);
+        Collections.sort(segundaParte);
+        Collections.sort(terceiraParte);
+        LinkedList<Individuo> resultado = new LinkedList();
+        resultado.add(primeiraParte.getFirst());
+        resultado.add(segundaParte.getFirst());
+        resultado.add(terceiraParte.getFirst());
+
+        return resultado;
+
+    }
+
+    public static LinkedList<Individuo> miLambda(LinkedList<Individuo> populacao, LinkedList<Individuo> filhos) {
+        LinkedList<Individuo> populacaoFinal = new LinkedList(populacao);
+        populacaoFinal.addAll(filhos); // ADICIONA TODOS OS FILHOS A LISTA DE PAIS
+        Collections.sort(populacaoFinal); // ORNDENA A POPULACAO TOTAL
+        populacaoFinal = new LinkedList(populacaoFinal.subList(0, Metodos.TAMANHOPOPULACAO)); // REMOVE A PIOR METADE DA POPULACAO
+        return populacaoFinal;
+    }
+
+    public static LinkedList<Individuo> elitismo(LinkedList<Individuo> populacao, LinkedList<Individuo> filhos) {
+        final double porcentagemElite = 0.1;
+        Collections.sort(populacao);
+        LinkedList<Individuo> populacaoFinal = new LinkedList(populacao.subList(0, (int) (TAMANHOPOPULACAO * porcentagemElite)));
+        LinkedList<Individuo> paisNaoSelecionados = new LinkedList(populacao.subList((int) (TAMANHOPOPULACAO * porcentagemElite), (TAMANHOPOPULACAO)));
+        paisNaoSelecionados.addAll(filhos);
+        Collections.sort(paisNaoSelecionados);
+        populacaoFinal.addAll(paisNaoSelecionados.subList(0, (int) (TAMANHOPOPULACAO * (1 - porcentagemElite))));
+        Collections.sort(populacaoFinal);
+        return populacaoFinal;
+    }
+
     public static Individuo realizarMutacao(Individuo cromossomo, int chanceMutacao, int quantidadeMutacao) {
 //        Realiza a mutacao de um individuo
         final Random gerador = new Random();
@@ -157,59 +222,95 @@ public class Metodos {
         return retornaIndividuoComFitnessEPeso(novoCromossomo);
     }
 
-    public static int calcularDistancia(Individuo cromossomoPrincipal, LinkedList<Integer> cromossomoComparado) {
-        int distancia = 0;
-        for (int i = 0; i < cromossomoPrincipal.getCromossomo().size(); i++) {
-            if (!cromossomoPrincipal.getCromossomo().get(i).equals(cromossomoComparado.get(i))) {
-                distancia++;
-            }
-        }
-        return distancia;
-    }
+    public static void mutacaoDirigida(LinkedList<Integer> esquema, LinkedList<Individuo> populacao, double taxaMutacao) {
+        ordenarProFitness(populacao);
+        List<Individuo> subLista = populacao.subList((int) (0.1 * populacao.size()), populacao.size());
 
-    public static void separarIndividuos(Individuo individuo, int y, int k) {
+        for (int i = 0; i < subLista.size(); i++) {
+            LinkedList<Integer> novoCromossomo = subLista.get(i).getCromossomo();
 
-        Universo universo = Universo.getInstancia();
-        boolean adicionado = false;
-        int i = 0;
-        while (!adicionado) {
-            if (universo.quantidadeDeConjuntos() == 0) {
-                Conjunto conjunto = new Conjunto();
-                conjunto.adicionarIndividuoLista(individuo);
-                universo.adicionarConjuntoLista(conjunto);
-                adicionado = true;
-            } else {
-                if (calcularDistancia(universo.getConjuntos().get(i).obterMaioral(), individuo.getCromossomo()) < y) {
-                    universo.getConjuntos().get(i).adicionarIndividuoLista(individuo);
-                    adicionado = true;
+            for (int j = 0; j < novoCromossomo.size(); j++) {
+                Random gerador = new Random();
+
+                if (-1 == esquema.get(j)) {
+                    if (gerador.nextDouble() < taxaMutacao) {
+                        novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
+                    }
                 } else {
-                    Conjunto conjunto = new Conjunto();
-                    conjunto.adicionarIndividuoLista(individuo);
-                    universo.adicionarConjuntoLista(conjunto);
-                    adicionado = true;
+
+                    if (subLista.get(i).getCromossomo().get(j) == esquema.get(j)) {
+                        if (gerador.nextDouble() < taxaMutacao) {
+                            novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
+                        }
+                    } else {
+                        if (gerador.nextDouble() < 0.04) {
+                            novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
+                        }
+                    }
                 }
             }
-            i++;
-        }
-
-        if (universo.quantidadeDeConjuntos() > k) {
-            System.out.println("Há Convergência");
+            subLista.get(i).setCromossomo(novoCromossomo);
         }
     }
 
-    public static void verificarConvergencia(LinkedList<Individuo> populacao, int maxConjuntos, int maxDistancia, int maxIndMesmoConjunto) {
-        Universo universo = Universo.getInstancia();
+    public static boolean temConvergencia(LinkedList<Individuo> populacao) {
+        System.out.println("Testando conversão genética");
+        int k = 10; // max conjunto
+        int y = 20; // max distancia entre os individuos
+        int m = 3000; // max individuos em um conjunto
 
-        int i = 1;
+        List<Conjunto> groups = new LinkedList<>();
 
-        while (universo.quantidadeDeConjuntos() < maxConjuntos) {
-            if (i > maxConjuntos) {
-                System.out.println("Há Convergêcia.");
-            } else {
-                System.out.println("Não há Convergêcia.");
+        groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), populacao.get(0)));
+
+        for (Individuo individuo : populacao) {
+            boolean added = false;
+            for (Conjunto group : groups) {
+                if (Conjunto.calcularDistancia(group, individuo, y)) {
+                    Conjunto.adicionarIndividuoLista(group, individuo);
+                    if (group.quantidadeIndividuos() > m) {
+                        System.out.println("Conversão genética detectada por super grupo!");
+                        return true;
+                    }
+                    added = true;
+                }
             }
-            //if (universo.getConjuntos().get(i).quantidadeIndividuos() > maxIndMesmoConjunto){}
-            i++;
+            if (!added) {
+                groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), individuo));
+            }
         }
+        if (groups.size() < k) {
+            System.out.println("Conversão genética detectada por número de conjuntos!");
+            return true;
+        }
+        return false;
+
+    }
+
+    public static LinkedList<Integer> criarEsquema(LinkedList<Individuo> populacao) {
+        ordenarProFitness(populacao);
+
+        List<Individuo> subLista = populacao.subList(0, (int) (populacao.size() * 0.1));
+
+        LinkedList<Integer> esquema = new LinkedList();
+
+        for (int i = 0; i < TAMANHOCROMOSSOMO; i++) {
+            int soma = 0;
+            for (int j = 0; j < subLista.size(); j++) {
+                // Soma todos os valores da posição
+                soma = soma + subLista.get(j).getCromossomo().get(i);
+            }
+            if (soma > subLista.size() * 0.8) {
+                esquema.add(1);
+            } else {
+                if (soma < subLista.size() * 0.2) {
+                    esquema.add(0);
+                } else {
+                    esquema.add(-1);
+                }
+            }
+        }
+
+        return esquema;
     }
 }

@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import models.Individuo;
 
-
 /**
  *
  * @author geandersonlemonte
@@ -21,30 +20,39 @@ public class IA {
         int geracao = 0; // GERACAO ATUAL
         double ultimoFitness = 0;  // ULTIMO FITNESS ENCONTRADO
         int contador = 0; // CONTADOR DE QUANTAS GERACOES NAO HOUVE EVOLUCAO
-        int chanceMutacao = 100; // PORCENTAGEM DE CHANCE DE MUTACAO
+        int chanceMutacao = 80; // PORCENTAGEM DE CHANCE DE MUTACAO
         int chanceCrossOver = 30; // PORCENTAGEM DE CHANCE DE CROSSOVER
-        int quantidadeMutacao = 2; // QUANTIDADE DE MUTACOES
+        int quantidadeMutacao = 10; // QUANTIDADE DE MUTACOES
         Grafico grafico = new Grafico();
         LinkedList<Double> dados = new LinkedList();
 
-        while (populacao.getFirst().getFitness() < 21312) { // ENQUANTO ELE NAO ACHAR O VALOR MAXIMO ELE VAI EXECUTAR O WHILE
+        int maxDistancia = 30;
+        int maxIndConjunto = 5000;
+        int maxConjunto = 10;
+
+        // populacao.getFirst().getFitness() < 21312
+        while (geracao < 3000) { // CONDICAO DE PARADA
             LinkedList<Individuo> filhos = new LinkedList(); // CRIA LISTA DE FILHOS
             for (int i = 0; i < Metodos.TAMANHOPOPULACAO / 2; i++) {
-                final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorRoleta(2, populacao); // RODA A ROLETA E SELECIONA DOIS INDIVIDUOS
+                // final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorRoleta(3, populacao); // RODA A ROLETA E SELECIONA DOIS INDIVIDUOS
+                final LinkedList<Individuo> itensSelecionados = Metodos.selecaoPorTorneio(3, populacao); // RODA A ROLETA E SELECIONA DOIS INDIVIDUOS
                 final LinkedList<Individuo> itensAposCrossOver = Metodos.crossOverUniforme(itensSelecionados.getFirst(), itensSelecionados.getLast(), chanceCrossOver); // REALIZA CROOSSOVER UNIFORME EM DOIS INDIVIDUOS 
+                // final LinkedList<Individuo> itensAposCrossOver = Metodos.crossOverUmPonto(itensSelecionados.getFirst(), itensSelecionados.get(1), chanceCrossOver);
                 final Individuo itemMutado1 = Metodos.realizarMutacao(itensAposCrossOver.getFirst(), chanceMutacao, quantidadeMutacao); // IDIVIDUO 1 APOS MUTACAO
                 final Individuo itemMutado2 = Metodos.realizarMutacao(itensAposCrossOver.getLast(), chanceMutacao, quantidadeMutacao); // INDIVIDUO 2 APOS MUTACAO
                 filhos.add(itemMutado1); // ADICIONA O INDIVIDUO 1 A LISTA DE FILHOS
                 filhos.add(itemMutado2); // ADICIONA O INDIVIDUO 2 A LISTA DE FILHOS
             }
-            populacao.addAll(filhos); // ADICIONA TODOS OS FILHOS A LISTA DE PAIS
-            Collections.sort(populacao); // ORNDENA A POPULACAO TOTAL
-            populacao = new LinkedList(populacao.subList(0, Metodos.TAMANHOPOPULACAO)); // REMOVE A PIOR METADE DA POPULACAO
+
+            populacao = Metodos.miLambda(populacao, filhos);
+
+            //  populacao = Metodos.elitismo(populacao, filhos);
             final double melhorFitness = populacao.getFirst().getFitness(); // PEGA O MELHOR FITNESS
 
             System.out.println(melhorFitness); // MOSTRAR O ELEMENTO DE MELHOR FITNESS DESSA GERACAO
             quantidadeMutacao = 2; // QUANTIDADE DE MUTACAO RECEBE 2
-            if (melhorFitness == ultimoFitness) { 
+            chanceMutacao = 80;
+            if (melhorFitness == ultimoFitness) {
                 // CASO NAO TENHA TIDO PROGRESSO NA GERACAO ELE AUMENTA O CONTADOR 
                 contador++;
             } else {
@@ -55,6 +63,7 @@ public class IA {
                     // CASO ELE ESTEJA EVOLUINDO NORMALMENTE EM GERACOES MULTIPLAS DE 10 ELE AUMENTA A QUANTIDADE DE MUTACAO
                     // PARA QUE POSSA ESPALHAR UM POUCO A SOLUÇÃO PARA SABER TER NOVAS POSSIBILIDADES
                     quantidadeMutacao = 5; // AUMENTA A QUANTIDADE DE MUTACAO
+                    chanceMutacao = 100;
                 }
             }
             if (contador > 3) {
@@ -63,9 +72,21 @@ public class IA {
                 // PARA ENCONTRAR AQUELE ESPECÍFICO QUE PODERIA SER MELHORADO NO CROMOSSOMO
                 quantidadeMutacao = 1; // AUMENTA A QUANTIDADE DE MUTACAO
             }
+
             System.out.println(geracao); // MOSTRA A GERACAO ATUAL
             geracao++; // AUMENTA A GERACAO
             dados.add(ultimoFitness);
+
+            if (geracao % 10 == 0) {
+                System.out.println("Criando o esquema!"); 
+                LinkedList<Integer> esquema = Metodos.criarEsquema(populacao);
+                
+                if (Metodos.temConvergencia(populacao)){
+                    System.out.println("Aplicando mutacao dirigida! ");
+                    Metodos.mutacaoDirigida(esquema, populacao, 0.4);
+                }
+            }
+
         }
         // ATINGIU A CONDICAO DE PARADA
         System.out.println(populacao.getFirst()); // MOSTROU O MELHOR VALOR ENCONTRADO

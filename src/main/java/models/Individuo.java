@@ -5,6 +5,7 @@
 package models;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -50,7 +51,8 @@ public class Individuo implements Comparable<Individuo> {
     public void setPeso(double peso) {
         this.peso = peso;
     }
-
+    
+    
     @Override
     public int compareTo(Individuo individuo) {
         if (this.fitness > individuo.getFitness()) {
