@@ -80,10 +80,9 @@ public class IA {
             if (geracao % 10 == 0) {
                 System.out.println("Criando o esquema!"); 
                 LinkedList<Integer> esquema = Metodos.criarEsquema(populacao);
-                
                 if (Metodos.temConvergencia(populacao)){
                     System.out.println("Aplicando mutacao dirigida! ");
-                    Metodos.mutacaoDirigida(esquema, populacao, 0.4);
+                    Metodos.mutacaoDirigida(esquema, populacao, 0.6);
                 }
             }
 

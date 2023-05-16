@@ -6,10 +6,10 @@ package com.teste.ia;
 
 import external.ILeituraArquivo;
 import external.LeituraArquivo;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import models.Conjunto;
 import models.Individuo;
@@ -224,10 +224,8 @@ public class Metodos {
 
     public static void mutacaoDirigida(LinkedList<Integer> esquema, LinkedList<Individuo> populacao, double taxaMutacao) {
         ordenarProFitness(populacao);
-        List<Individuo> subLista = populacao.subList((int) (0.1 * populacao.size()), populacao.size());
-
-        for (int i = 0; i < subLista.size(); i++) {
-            LinkedList<Integer> novoCromossomo = subLista.get(i).getCromossomo();
+        for (int i = ((int) (0.1 * populacao.size())); i < populacao.size(); i++) {
+            LinkedList<Integer> novoCromossomo = populacao.get(i).getCromossomo();
 
             for (int j = 0; j < novoCromossomo.size(); j++) {
                 Random gerador = new Random();
@@ -238,7 +236,7 @@ public class Metodos {
                     }
                 } else {
 
-                    if (subLista.get(i).getCromossomo().get(j) == esquema.get(j)) {
+                    if (Objects.equals(populacao.get(i).getCromossomo().get(j), esquema.get(j))) {
                         if (gerador.nextDouble() < taxaMutacao) {
                             novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
                         }
@@ -249,7 +247,8 @@ public class Metodos {
                     }
                 }
             }
-            subLista.get(i).setCromossomo(novoCromossomo);
+            Individuo individuo = retornaIndividuoComFitnessEPeso(novoCromossomo);
+            populacao.set(i, individuo);
         }
     }
 
@@ -262,20 +261,22 @@ public class Metodos {
         List<Conjunto> groups = new LinkedList<>();
 
         groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), populacao.get(0)));
-
-        for (Individuo individuo : populacao) {
+        for(int i =0; i < populacao.size(); i ++){
+            Individuo individuo = populacao.get(i);
             boolean added = false;
-            for (Conjunto group : groups) {
-                if (Conjunto.calcularDistancia(group, individuo, y)) {
+            for(int j = 0; j < groups.size(); j ++){
+                 Conjunto group = groups.get(j);
+                 if (Conjunto.calcularDistancia(group, individuo, y)) {
                     Conjunto.adicionarIndividuoLista(group, individuo);
+                    added = true;
                     if (group.quantidadeIndividuos() > m) {
                         System.out.println("Conversão genética detectada por super grupo!");
                         return true;
                     }
-                    added = true;
                 }
             }
             if (!added) {
+                System.out.println("Criando novo conjunto");
                 groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), individuo));
             }
         }
