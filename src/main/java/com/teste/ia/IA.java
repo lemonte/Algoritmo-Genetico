@@ -23,7 +23,7 @@ public class IA {
         int chanceCrossOver = 30; // PORCENTAGEM DE CHANCE DE CROSSOVER
         int quantidadeMutacao = 10; // QUANTIDADE DE MUTACOES
         Grafico grafico = new Grafico();
-        int y = 10;
+        int y = 10; // COMEÇA O Y COM 10 PARA IR DECREMENTANDO DEPOIS PARA NÃO OCORRER CONVERGENCIA PREMETURA
         LinkedList<Double> dados = new LinkedList();
 
         // populacao.getFirst().getFitness() < 21312
@@ -73,15 +73,18 @@ public class IA {
             geracao++; // AUMENTA A GERACAO
             dados.add(ultimoFitness);
 
+            
+            //HÁ CADA 10 GERAÇÕES VERIFICA A CONVERGÊNCIA
             if (geracao % 10 == 0) {
                 System.out.println("Criando o esquema!"); 
-                LinkedList<Integer> esquema = Metodos.criarEsquema(populacao);
-                if (Metodos.temConvergencia(populacao, y) > 1){
-                    if(y > 1){
-                        y = y - 1;
+                LinkedList<Integer> esquema = Metodos.criarEsquema(populacao); // CRIA O ESQUEMA A CADA 10 GERAÇÕES
+                if (Metodos.temConvergencia(populacao, y) > 0){ // SE HOUVER CONVERGÊNCIA A FUNÇÃO RETORNA MAIOR QUE ZERO
+                    if(y > 1){ // SE O Y FOR MAIOR QUE 1, QUE É O MÍNIMO DE CONJUNTOS
+                        y = y - 1; // DECREMENTA O Y PARA CRIAR MAIS CONJUNTOS PARA EVITAR A CONVERGÊNCIA
                     }
                     System.out.println("Aplicando mutacao dirigida! ");
-                    Metodos.mutacaoDirigida(esquema, populacao, 0.4);
+                    Metodos.mutacaoDirigida(esquema, populacao, 0.4); 
+//                  TENDO A CONVERGÊNCIA, É CHAMADA A FUNÇÃO DE MUTAÇÃO PARA QUEBRAR OS ESQUEMAS, EVITANDO ESQUEMAS ENGANADORES
                 }
             }
 

@@ -31,6 +31,9 @@ public class Conjunto {
                 distancia++;
             }
         }
-        return distancia < maxDistancia;
+        if(distancia < maxDistancia){
+            return true;
+        }
+        return false;
     }
 }

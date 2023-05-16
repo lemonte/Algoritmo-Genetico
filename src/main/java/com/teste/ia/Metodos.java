@@ -224,6 +224,9 @@ public class Metodos {
 
     public static void mutacaoDirigida(LinkedList<Integer> esquema, LinkedList<Individuo> populacao, double taxaMutacao) {
         ordenarProFitness(populacao);
+        // até 10% são os melhores indivíduos, então
+        // Percorremos o resto da população ou seja
+        // dos 11% ate o fim
         for (int i = ((int) (0.1 * populacao.size())); i < populacao.size(); i++) {
             LinkedList<Integer> novoCromossomo = populacao.get(i).getCromossomo();
 
@@ -232,15 +235,21 @@ public class Metodos {
 
                 if (-1 == esquema.get(j)) {
                     if (gerador.nextDouble() < taxaMutacao) {
+                        // Se o cromossomo na posição j for IGUAL a 1,
+                        // esta posição tem 40% de chance dde ser mutada
                         novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
                     }
                 } else {
 
                     if (Objects.equals(populacao.get(i).getCromossomo().get(j), esquema.get(j))) {
+                        // Se a posicao J do cromossomo for IGUAL a posicao J do esquema
+                        // Esta posição tem 40% de chanche de ser mutada
                         if (gerador.nextDouble() < taxaMutacao) {
                             novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
                         }
                     } else {
+                        // Se a posicao J do cromossomo for DIFERENTE a posicao J do esquema
+                        // Esta posição tem 4% de chanche de ser mutada
                         if (gerador.nextDouble() < 0.04) {
                             novoCromossomo.set(j, novoCromossomo.get(j) == 1 ? 0 : 1);
                         }
@@ -257,58 +266,71 @@ public class Metodos {
         int k = 100; // max conjunto
         int m = 100; // max individuos em um conjunto
         
-        List<Conjunto> groups = new LinkedList<>();
+        List<Conjunto> groups = new LinkedList<>(); //cria uma lista de conjuntos chamada groups que sera usada para armazenar os conjuntos de individuos
 
-        groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), populacao.get(0)));
-        for (int i = 0; i < populacao.size(); i++) {
-            Individuo individuo = populacao.get(i);
+        groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), populacao.get(0))); //o primeiro individuo da população é adicionado ao conjunto criado, e esse conjunto é adicionado a lista groups
+        
+        
+        for (int i = 0; i < populacao.size(); i++) { // faz o loop em todos os individuos da população
+            Individuo individuo = populacao.get(i); // pega cada indivíduo da população
             boolean added = false;
-            for (int j = 0; j < groups.size(); j++) {
-                Conjunto group = groups.get(j);
-                if (Conjunto.calcularDistancia(group, individuo, y)) {
-                    Conjunto.adicionarIndividuoLista(group, individuo);
+            for (int j = 0; j < groups.size(); j++) { //percorre a lista groups
+                Conjunto group = groups.get(j); // pega cada conjunto da lista groups
+                if (Conjunto.calcularDistancia(group, individuo, y)) { //se a a função retornar true (quando a distancia é menor que o y)
+                    Conjunto.adicionarIndividuoLista(group, individuo); // adiciona o individuo i no conjunto j atual
                     added = true;
-                    if (group.quantidadeIndividuos() > m) {
+                    if (group.quantidadeIndividuos() > m) { // se a quantidade de individuos dentro de um conjunto for maior que m
                         System.out.println("TAMANHO CONJUNTO " + groups.size());
                         System.out.println("Conversão genética detectada por super grupo!");
                         return groups.size();
                     }
                 }
             }
-            if (!added) {
+            if (!added) { // se depois que percorrer todos os conjuntos j e o individuo i não for adicionado
 //                System.out.println("Criando novo conjunto");
                 groups.add(Conjunto.adicionarIndividuoLista(new Conjunto(), individuo));
+                // adiciona o individuo i em um novo conjunto, e adiciona esse conjunto na lista groups
             }
         }
         System.out.println("TAMANHO CONJUNTO " + groups.size());
 
         if (groups.size() < k) {
+            //se o tamanho da lista groups for menor que o k
             System.out.println("Conversão genética detectada por número de conjuntos!");
             return groups.size();
         }
         return 0;
-
     }
 
     public static LinkedList<Integer> criarEsquema(LinkedList<Individuo> populacao) {
         ordenarProFitness(populacao);
-
+        
+        // Separa os 10% primeiro da lista
         List<Individuo> subLista = populacao.subList(0, (int) (populacao.size() * 0.1));
-
+        
+        // Cria a lista de esquema que será retornado
         LinkedList<Integer> esquema = new LinkedList();
 
+        
         for (int i = 0; i < TAMANHOCROMOSSOMO; i++) {
             int soma = 0;
+            //Percorre o cromossomo dos individuos da população
             for (int j = 0; j < subLista.size(); j++) {
-                // Soma todos os valores da posição
+                // Soma todos os valores da posição dos individuos
                 soma = soma + subLista.get(j).getCromossomo().get(i);
             }
+            // Se a soma total for maior que 80% da subLista criada
+            // E adicionado 1 na posicao do esquema
             if (soma > subLista.size() * 0.8) {
                 esquema.add(1);
             } else {
+                // Se a soma total for menor que 20% da subLista criada
+                // E adicionado 0 na posição do esquema
                 if (soma < subLista.size() * 0.2) {
                     esquema.add(0);
                 } else {
+                    // Caso a soma esteja entre 20% e 80% 
+                    // Adicionamos -1, um coringa ao gene
                     esquema.add(-1);
                 }
             }
